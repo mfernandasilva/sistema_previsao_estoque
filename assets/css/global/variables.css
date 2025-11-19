@@ -1,0 +1,13 @@
+:root {
+    --verde: #4A9D4A;
+    --verde-escuro: #2f7e3b;
+    --fundo-claro: #F8F9F1;
+    --cinza: #555;
+    --branco: #fff;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 15px;
+
+    --shadow-card: 0 4px 10px rgba(0,0,0,0.08);
+}

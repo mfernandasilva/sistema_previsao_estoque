@@ -1,0 +1,4 @@
+@import '/assets/css/global/global.css';
+
+@import './partials/welcome/index.css';
+@import './partials/home/home.css';
