@@ -13,7 +13,6 @@
     </header>
 
     <div class="layout">
-
         <aside class="sidebar">
             <nav class="menu">
                 <a href="#" class="menu-item">
@@ -32,6 +31,41 @@
                 Cadastrar Produto
             </a>
         </main>
+        <div id="modal-overlay" class="modal-overlay">
+            <div class="modal">
+                <h2>Cadastrar Produto</h2>
+                <form id="form-produto">
+
+                    <label>Nome do Produto</label>
+                    <input type="text" required>
+
+                    <label>Unidade (kg, un)</label>
+                    <input type="text" required>
+
+                    <label>Estoque Inicial</label>
+                    <input type="number" required>
+
+                    <label>Taxa inicial de vendas k₀</label>
+                    <input type="number" step="0.01" required>
+
+                    <label>Variação da demanda α</label>
+                    <input type="number" step="0.01" required>
+
+                    <label>Reposição (R)</label>
+                    <input type="number" required>
+
+                    <label>Duração da simulação (dias)</label>
+                    <input type="number" required>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelar" class="btn-cancelar">Cancelar</button>
+                        <button type="submit" class="btn-primary">Salvar</button>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
     </div>
+    <script src="./assets/js/pages/main.js"></script>
 </body>
 </html>
