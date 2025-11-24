@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo MathEngine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+        h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .label {
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .output {
+            background: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            font-size: 11px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Demo simples para testar o MathEngine -->
+        <h1>Sistema de Previsão de Estoque - Demo</h1>
+
+        <div class="section">
+            <h2>1. Dados de Vendas (discretos)</h2>
+            <p class="label">Dados: Dias [0,1,2,3,4], Vendas [10,7,5,8,12] kg</p>
+            <button onclick="runDemandDemo()">Ver Demanda</button>
+            <div id="demand-output" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Derivadas Parciais</h2>
+            <p class="label">Análise no Dia 2, Estoque 50 kg</p>
+            <button onclick="runGradientDemo()">Calcular Gradiente</button>
+            <div id="gradient-output" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Hessiana</h2>
+            <p class="label">Análise de aceleração no Dia 2, Estoque 50 kg</p>
+            <button onclick="runHessianDemo()">Analisar Hessiana</button>
+            <div id="hessian-output" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. Pontos Críticos</h2>
+            <p class="label">Busca em dias [0-4], estoque [40-100 kg]</p>
+            <button onclick="runCriticalPointsDemo()">Encontrar Pontos Críticos</button>
+            <div id="critical-output" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>5. Simulação de Estoque</h2>
+            <p class="label">Projeção de 10 dias, estoque inicial 100 kg, reposição 50 kg a cada 3 dias</p>
+            <button onclick="runSimulationDemo()">Executar Simulação</button>
+            <div id="simulation-output" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>6. Mapa de Contornos</h2>
+            <p class="label">Grade 10x10 de demanda</p>
+            <button onclick="runGridSamplingDemo()">Gerar Mapa</button>
+            <div id="grid-output" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>7. Parser CSV</h2>
+            <p class="label">Teste de importação de dados</p>
+            <button onclick="runCSVParserDemo()">Fazer Parse</button>
+            <div id="csv-output" class="output"></div>
+        </div>
+
+    <!-- Carregar MathEngine -->
+    <script src="./assets/js/math_engine.js"></script>
+
+    <!-- Scripts de Demo -->
+    <script>
+        // Funções auxiliares para formatação
+        function formatNumber(n, decimals = 6) {
+            return typeof n === 'number' ? n.toFixed(decimals) : n;
+        }
+
+        function formatArray(arr, decimals = 4) {
+            return '[' + arr.map(x => formatNumber(x, decimals)).join(', ') + ']';
+        }
+
+    // Mostra tabela com dados de demanda
+    function runDemandDemo() {
+            const t = [0, 1, 2, 3, 4];
+            const v = [10, 7, 5, 8, 12];
+            
+            const output = document.getElementById('demand-output');
+            let html = '<table><tr><th>Dia</th><th>Venda (kg)</th></tr>';
+            
+            for (const day of t) {
+                const val = MathEngine.getDemandAtDay(v, day);
+                html += `<tr><td>${day}</td><td>${formatNumber(val, 2)}</td></tr>`;
+            }
+            html += '</table>';
+            output.innerHTML = html;
+        }
+
+    // Calcula e mostra o gradiente (derivadas parciais)
+    function runGradientDemo() {
+            const t = [0, 1, 2, 3, 4];
+            const v = [10, 7, 5, 8, 12];
+            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
+            
+            const t0 = 2.0, s0 = 50;
+            const grad = MathEngine.gradient(f, t0, s0);
+            const dfdt = grad[0];
+            const dfds = grad[1];
+            const gradNorm = MathEngine.util.norm2(grad);
+            
+            const output = document.getElementById('gradient-output');
+            let html = `<p>Ponto: Dia ${t0}, Estoque ${s0} kg</p>`;
+            html += `<p>∂f/∂dia = ${formatNumber(dfdt, 6)}</p>`;
+            html += `<p>∂f/∂estoque = ${formatNumber(dfds, 6)}</p>`;
+            html += `<p>||∇f|| = ${formatNumber(gradNorm, 6)}</p>`;
+            output.innerHTML = html;
+        }
+
+    // Calcula e mostra a Hessiana no ponto escolhido
+    function runHessianDemo() {
+            const t = [0, 1, 2, 3, 4];
+            const v = [10, 7, 5, 8, 12];
+            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
+            
+            const t0 = 2.0, s0 = 50;
+            const H = MathEngine.hessian(f, t0, s0);
+            const det = H[0][0] * H[1][1] - H[0][1] * H[1][0];
+            const trace = H[0][0] + H[1][1];
+            
+            const output = document.getElementById('hessian-output');
+            let html = `<p>Ponto: Dia ${t0}, Estoque ${s0} kg</p>`;
+            html += `<p>H[0][0] = ${formatNumber(H[0][0], 6)}</p>`;
+            html += `<p>H[0][1] = ${formatNumber(H[0][1], 6)}</p>`;
+            html += `<p>H[1][0] = ${formatNumber(H[1][0], 6)}</p>`;
+            html += `<p>H[1][1] = ${formatNumber(H[1][1], 6)}</p>`;
+            html += `<p>det(H) = ${formatNumber(det, 6)}</p>`;
+            html += `<p>trace(H) = ${formatNumber(trace, 6)}</p>`;
+            output.innerHTML = html;
+        }
+
+    // Procura pontos críticos na grade e mostra resultados
+    function runCriticalPointsDemo() {
+            const t = [0, 1, 2, 3, 4];
+            const v = [10, 7, 5, 8, 12];
+            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
+            
+            const crit = MathEngine.findCriticalPointsGrid(f, [0, 4], [40, 100], 30, 30, {
+                eps: 0.1, maxIter: 30, tol: 1e-6, h: 1e-3
+            });
+            
+            const output = document.getElementById('critical-output');
+            if (crit.length === 0) {
+                output.innerHTML = '<p>Nenhum ponto crítico encontrado</p>';
+                return;
+            }
+            
+            let html = `<p>Encontrados ${crit.length} pontos críticos:</p>`;
+            html += '<table><tr><th>Dia</th><th>Estoque</th><th>Tipo</th></tr>';
+            for (const c of crit) {
+                html += `<tr><td>${formatNumber(c.t, 2)}</td><td>${formatNumber(c.s, 1)}</td><td>${c.type}</td></tr>`;
+            }
+            html += '</table>';
+            output.innerHTML = html;
+        }
+
+    // Executa simulação simples de estoque e mostra tabela
+    function runSimulationDemo() {
+            const t = [0, 1, 2, 3, 4];
+            const v = [10, 7, 5, 8, 12];
+            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
+            
+            const sim = MathEngine.simulateStock({
+                S0: 100, t0: 0, tEnd: 10, dt: 0.5,
+                demandFunc: (t, S) => f(t, S),
+                periodic: { interval: 3, qty: 50, start: 0 }
+            });
+            
+            const output = document.getElementById('simulation-output');
+            let html = `<p>Simulação: ${sim.length} passos</p>`;
+            html += '<table><tr><th>Dia</th><th>Estoque</th><th>Vendas</th><th>Reposição</th></tr>';
+            
+            for (let i = 0; i < Math.min(20, sim.length); i++) {
+                const s = sim[i];
+                html += `<tr><td>${formatNumber(s.t, 1)}</td><td>${formatNumber(s.S, 1)}</td><td>${formatNumber(s.demand, 1)}</td><td>${formatNumber(s.replenishment, 0)}</td></tr>`;
+            }
+            if (sim.length > 20) html += `<tr><td colspan="4">... ${sim.length - 20} linhas omitidas</td></tr>`;
+            html += '</table>';
+            
+            const ruptura = sim.find(x => x.rupture);
+            if (ruptura) html += `<p><strong>Ruptura detectada em dia ${formatNumber(ruptura.t, 1)}</strong></p>`;
+            output.innerHTML = html;
+        }
+
+    // Amostra a superfície em uma grade e mostra alguns pontos
+    function runGridSamplingDemo() {
+            const t = [0, 1, 2, 3, 4];
+            const v = [10, 7, 5, 8, 12];
+            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
+            
+            const grid = MathEngine.sampleGrid(f, [0, 4], [40, 100], 10, 10);
+            
+            const output = document.getElementById('grid-output');
+            let html = `<p>Grade ${grid.Ts.length}x${grid.Ss.length} = ${grid.Ts.length * grid.Ss.length} pontos</p>`;
+            html += '<table><tr><th>Dia</th><th>Estoque</th><th>Demanda</th><th>dD/dia</th><th>dD/estoque</th></tr>';
+            
+            const step = Math.ceil((grid.Ts.length * grid.Ss.length) / 12);
+            for (let idx = 0; idx < grid.Ts.length * grid.Ss.length; idx += step) {
+                const i = Math.floor(idx / grid.Ss.length);
+                const j = idx % grid.Ss.length;
+                if (i < grid.Ts.length && j < grid.Ss.length) {
+                    html += `<tr><td>${formatNumber(grid.Ts[i], 1)}</td><td>${formatNumber(grid.Ss[j], 0)}</td><td>${formatNumber(grid.Z[i][j], 2)}</td><td>${formatNumber(grid.Gt[i][j], 4)}</td><td>${formatNumber(grid.Gs[i][j], 6)}</td></tr>`;
+                }
+            }
+            html += '</table>';
+            output.innerHTML = html;
+        }
+
+    // Testa o parser CSV com exemplo embutido
+    function runCSVParserDemo() {
+            const csvText = `dia,vendas_kg,estoque_kg
+0,10,95
+1,8,87
+2,7,80
+3,9,71
+4,12,59`;
+            
+            const parsed = MathEngine.parseCSV(csvText);
+            
+            const output = document.getElementById('csv-output');
+            let html = `<p>Linhas parseadas: ${parsed.length}</p>`;
+            html += '<table><tr><th>Dia</th><th>Vendas (kg)</th><th>Estoque (kg)</th></tr>';
+            for (const row of parsed) {
+                html += `<tr><td>${row.dia}</td><td>${row.vendas_kg}</td><td>${row.estoque_kg}</td></tr>`;
+            }
+            html += '</table>';
+            output.innerHTML = html;
+        }
+
+        // Evento simples para indicar que o demo carregou
+        window.addEventListener('load', () => {
+            console.log('MathEngine Demo loaded');
+        });
+    </script>
+</body>
+</html>
