@@ -3,303 +3,490 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo MathEngine</title>
+    <title>Sacolão Calculanos - Análises</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #ccc;
-        }
-        h2 {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        .label {
-            font-weight: bold;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-        .output {
-            background: #f9f9f9;
-            padding: 10px;
-            border: 1px solid #ddd;
-            font-family: monospace;
-            font-size: 11px;
-            overflow-x: auto;
-            margin: 10px 0;
-        }
-        button {
-            background: #333;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-top: 10px;
-        }
-        button:hover {
-            background: #555;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 11px;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background: #f0f0f0;
-            font-weight: bold;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1300px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px; }
+        h1 { color: #27ae60; margin-bottom: 30px; border-bottom: 3px solid #27ae60; padding-bottom: 10px; }
+        .section { margin-bottom: 40px; padding: 20px; background: #f9f9f9; border-left: 4px solid #27ae60; border-radius: 4px; }
+        .section h2 { color: #27ae60; font-size: 20px; margin-bottom: 15px; }
+        button { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #229954; }
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .metric { background: white; padding: 15px; border-radius: 4px; border-top: 3px solid #27ae60; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .metric-value { font-size: 24px; font-weight: bold; color: #27ae60; }
+        .metric-label { font-size: 12px; color: #999; margin-top: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #27ae60; color: white; padding: 10px; text-align: left; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f5f5f5; }
+        .chart { background: white; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        svg { max-width: 100%; }
+        .alert { padding: 12px; border-radius: 4px; margin: 15px 0; }
+        .alert-warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .alert-success { background: #d4edda; border-left: 4px solid #28a745; }
+        .alert-danger { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .interpretation { background: #e8f5e9; padding: 12px; border-left: 4px solid #27ae60; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Demo simples para testar o MathEngine -->
-        <h1>Sistema de Previsão de Estoque - Demo</h1>
+        <h1>🥬 Sacolão Calculanos - Sistema de Previsão</h1>
 
         <div class="section">
-            <h2>1. Dados de Vendas (discretos)</h2>
-            <p class="label">Dados: Dias [0,1,2,3,4], Vendas [10,7,5,8,12] kg</p>
-            <button onclick="runDemandDemo()">Ver Demanda</button>
-            <div id="demand-output" class="output"></div>
+            <h2>📦 Resumo do Produto</h2>
+            <button onclick="runProductSummary()">Carregar</button>
+            <div id="product-output"></div>
         </div>
 
         <div class="section">
-            <h2>2. Derivadas Parciais</h2>
-            <p class="label">Análise no Dia 2, Estoque 50 kg</p>
-            <button onclick="runGradientDemo()">Calcular Gradiente</button>
-            <div id="gradient-output" class="output"></div>
+            <h2>📈 Previsão de Demanda</h2>
+            <button onclick="runDemandForecast()">Executar</button>
+            <div id="demand-output"></div>
         </div>
 
         <div class="section">
-            <h2>3. Hessiana</h2>
-            <p class="label">Análise de aceleração no Dia 2, Estoque 50 kg</p>
-            <button onclick="runHessianDemo()">Analisar Hessiana</button>
-            <div id="hessian-output" class="output"></div>
+            <h2>🔄 Análise de Perecibilidade</h2>
+            <button onclick="runPerecibilityAnalysis()">Analisar</button>
+            <div id="perecibility-output"></div>
         </div>
 
         <div class="section">
-            <h2>4. Pontos Críticos</h2>
-            <p class="label">Busca em dias [0-4], estoque [40-100 kg]</p>
-            <button onclick="runCriticalPointsDemo()">Encontrar Pontos Críticos</button>
-            <div id="critical-output" class="output"></div>
+            <h2>📥 Simulação de Estoque (30 dias)</h2>
+            <button onclick="runCompleteSimulation()">Simular</button>
+            <div id="simulation-output"></div>
         </div>
 
         <div class="section">
-            <h2>5. Simulação de Estoque</h2>
-            <p class="label">Projeção de 10 dias, estoque inicial 100 kg, reposição 50 kg a cada 3 dias</p>
-            <button onclick="runSimulationDemo()">Executar Simulação</button>
-            <div id="simulation-output" class="output"></div>
+            <h2>🎯 Otimização EOQ</h2>
+            <button onclick="runOptimizationAnalysis()">Calcular</button>
+            <div id="optimization-output"></div>
         </div>
 
         <div class="section">
-            <h2>6. Mapa de Contornos</h2>
-            <p class="label">Grade 10x10 de demanda</p>
-            <button onclick="runGridSamplingDemo()">Gerar Mapa</button>
-            <div id="grid-output" class="output"></div>
+            <h2>📱 Dashboard Integrado</h2>
+            <button onclick="runFullDashboard()">Gerar</button>
+            <div id="dashboard-output"></div>
         </div>
+    </div>
 
-        <div class="section">
-            <h2>7. Parser CSV</h2>
-            <p class="label">Teste de importação de dados</p>
-            <button onclick="runCSVParserDemo()">Fazer Parse</button>
-            <div id="csv-output" class="output"></div>
-        </div>
-
-    <!-- Carregar MathEngine -->
     <script src="./assets/js/math_engine.js"></script>
-
-    <!-- Scripts de Demo -->
     <script>
-        // Funções auxiliares para formatação
-        function formatNumber(n, decimals = 6) {
-            return typeof n === 'number' ? n.toFixed(decimals) : n;
-        }
+        const formData = {
+            produto: { nome: "Maçã Gala", categoria: "Fruta" },
+            demanda: { media: 35, variacao: 13, crescimento: true },
+            estoque: { inicial: 90, minimo: 20 },
+            perecibilidade: { taxa_perda_pct: 1.5, prazo_validade: 15 },
+            reposicao: { quantidade: 85, lead_time: 3 }
+        };
 
-        function formatArray(arr, decimals = 4) {
-            return '[' + arr.map(x => formatNumber(x, decimals)).join(', ') + ']';
-        }
-
-    // Mostra tabela com dados de demanda
-    function runDemandDemo() {
-            const t = [0, 1, 2, 3, 4];
-            const v = [10, 7, 5, 8, 12];
+        function drawChart(data, yKey, title, yLabel, h=350) {
+            if (!data || data.length === 0) return '';
+            const w = 900, p = 70, pb = 60;
+            const y_vals = data.map(d => d[yKey]);
+            const max_y = Math.max(...y_vals), min_y = Math.min(...y_vals);
+            const range = max_y - min_y || 1;
             
-            const output = document.getElementById('demand-output');
-            let html = '<table><tr><th>Dia</th><th>Venda (kg)</th></tr>';
+            let svg = `<svg width="${w}" height="${h}" style="border:1px solid #ddd; background:#fff; font-family: 'Segoe UI', sans-serif;">`;
             
-            for (const day of t) {
-                const val = MathEngine.getDemandAtDay(v, day);
-                html += `<tr><td>${day}</td><td>${formatNumber(val, 2)}</td></tr>`;
+            // Grid horizontal com linhas e valores
+            for (let i = 0; i <= 5; i++) {
+                const y = p + (i / 5) * (h - p - pb);
+                const val = max_y - (i / 5) * range;
+                svg += `<line x1="${p}" y1="${y}" x2="${w - 30}" y2="${y}" stroke="#eee" stroke-width="1"/>`;
+                svg += `<text x="${p - 5}" y="${y + 4}" font-size="11" fill="#666" text-anchor="end">${val.toFixed(1)}</text>`;
             }
-            html += '</table>';
-            output.innerHTML = html;
+            
+            // Pontos e linha
+            let pts = [];
+            for (let i = 0; i < data.length; i++) {
+                const x = p + (i / (data.length - 1 || 1)) * (w - p - 30);
+                const y = p + (h - p - pb) - ((data[i][yKey] - min_y) / range) * (h - p - pb);
+                pts.push({x, y, i});
+            }
+            
+            let path = 'M';
+            for (let i = 0; i < pts.length; i++) {
+                path += i === 0 ? ` ${pts[i].x},${pts[i].y}` : ` L ${pts[i].x},${pts[i].y}`;
+            }
+            svg += `<path d="${path}" stroke="#27ae60" stroke-width="2.5" fill="none"/>`;
+            for (let pt of pts) {
+                svg += `<circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#27ae60" stroke="#fff" stroke-width="1"/>`;
+            }
+            
+            // Eixos
+            svg += `<line x1="${p}" y1="${p}" x2="${p}" y2="${h - pb}" stroke="#333" stroke-width="2"/>`;
+            svg += `<line x1="${p}" y1="${h - pb}" x2="${w - 20}" y2="${h - pb}" stroke="#333" stroke-width="2"/>`;
+            
+            // Setas dos eixos
+            svg += `<polygon points="${p-5},${p} ${p},${p-8} ${p+5},${p}" fill="#333"/>`;
+            svg += `<polygon points="${w-15},${h-pb} ${w-8},${h-pb-5} ${w-8},${h-pb+5}" fill="#333"/>`;
+            
+            // Label eixo Y
+            svg += `<text x="15" y="${h/2}" font-size="12" fill="#666" text-anchor="middle" transform="rotate(-90 15 ${h/2})">${yLabel}</text>`;
+            
+            // Labels eixo X (a cada 5 dias ou menos)
+            const step = Math.ceil(data.length / 6);
+            for (let i = 0; i < data.length; i += step) {
+                const pt = pts[i];
+                svg += `<text x="${pt.x}" y="${h - pb + 18}" font-size="11" fill="#666" text-anchor="middle">Dia ${i+1}</text>`;
+            }
+            
+            // Título do gráfico
+            svg += `<text x="${w/2}" y="25" font-size="14" font-weight="bold" fill="#27ae60" text-anchor="middle">${title}</text>`;
+            
+            // Legenda
+            svg += `<circle cx="${w - 120}" cy="45" r="3" fill="#27ae60"/>`;
+            svg += `<text x="${w - 110}" y="50" font-size="11" fill="#666">${yLabel}</text>`;
+            
+            svg += `</svg>`;
+            return svg;
         }
 
-    // Calcula e mostra o gradiente (derivadas parciais)
-    function runGradientDemo() {
-            const t = [0, 1, 2, 3, 4];
-            const v = [10, 7, 5, 8, 12];
-            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
+        function runProductSummary() {
+            const {produto, demanda, estoque, perecibilidade, reposicao} = formData;
+            let html = `
+            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                📋 Consolidação de todos os 6 formulários com parâmetros de entrada para as simulações
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 4px; border-left: 4px solid #27ae60;">
+                    <strong style="color: #27ae60;">🥬 PRODUTO</strong>
+                    <table style="width: 100%; margin-top: 8px; font-size: 13px;">
+                        <tr><td>Nome:</td><td style="text-align: right;"><strong>${produto.nome}</strong></td></tr>
+                        <tr><td>Categoria:</td><td style="text-align: right;"><strong>${produto.categoria}</strong></td></tr>
+                    </table>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 15px; border-radius: 4px; border-left: 4px solid #ffc107;">
+                    <strong style="color: #856404;">📈 DEMANDA</strong>
+                    <table style="width: 100%; margin-top: 8px; font-size: 13px;">
+                        <tr><td>Média:</td><td style="text-align: right;"><strong>${demanda.media} kg/dia</strong></td></tr>
+                        <tr><td>Variação:</td><td style="text-align: right;"><strong>±${demanda.variacao}%</strong></td></tr>
+                        <tr><td>Crescimento:</td><td style="text-align: right;"><strong>${demanda.crescimento ? '📈 Sim' : '➡️ Não'}</strong></td></tr>
+                    </table>
+                </div>
+                
+                <div style="background: #cfe9ff; padding: 15px; border-radius: 4px; border-left: 4px solid #0066cc;">
+                    <strong style="color: #004085;">📦 ESTOQUE</strong>
+                    <table style="width: 100%; margin-top: 8px; font-size: 13px;">
+                        <tr><td>Inicial:</td><td style="text-align: right;"><strong>${estoque.inicial} kg</strong></td></tr>
+                        <tr><td>Mínimo:</td><td style="text-align: right;"><strong>${estoque.minimo} kg</strong></td></tr>
+                        <tr><td>Buffer:</td><td style="text-align: right;"><strong>${(estoque.inicial - estoque.minimo)} kg</strong></td></tr>
+                    </table>
+                </div>
+                
+                <div style="background: #f8d7da; padding: 15px; border-radius: 4px; border-left: 4px solid #dc3545;">
+                    <strong style="color: #721c24;">☠️ PERECIBILIDADE</strong>
+                    <table style="width: 100%; margin-top: 8px; font-size: 13px;">
+                        <tr><td>Taxa/dia:</td><td style="text-align: right;"><strong>${perecibilidade.taxa_perda_pct}%</strong></td></tr>
+                        <tr><td>Validade:</td><td style="text-align: right;"><strong>${perecibilidade.prazo_validade} dias</strong></td></tr>
+                        <tr><td>Perda 100kg:</td><td style="text-align: right;"><strong>${(100 * (1 - Math.pow(1 - perecibilidade.taxa_perda_pct/100, perecibilidade.prazo_validade))).toFixed(0)} kg</strong></td></tr>
+                    </table>
+                </div>
+                
+                <div style="background: #d4edda; padding: 15px; border-radius: 4px; border-left: 4px solid #28a745;">
+                    <strong style="color: #155724;">🔄 REPOSIÇÃO</strong>
+                    <table style="width: 100%; margin-top: 8px; font-size: 13px;">
+                        <tr><td>Quantidade:</td><td style="text-align: right;"><strong>${reposicao.quantidade} kg</strong></td></tr>
+                        <tr><td>Lead time:</td><td style="text-align: right;"><strong>${reposicao.lead_time} dias</strong></td></tr>
+                        <tr><td>Ciclo:</td><td style="text-align: right;"><strong>${(reposicao.quantidade / demanda.media).toFixed(1)} dias</strong></td></tr>
+                    </table>
+                </div>
+            </div>
             
-            const t0 = 2.0, s0 = 50;
-            const grad = MathEngine.gradient(f, t0, s0);
-            const dfdt = grad[0];
-            const dfds = grad[1];
-            const gradNorm = MathEngine.util.norm2(grad);
+            <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; margin-top: 15px;">
+                <strong style="color: #333; font-size: 13px;">📊 RESUMO DOS PARÂMETROS</strong>
+                <table style="width: 100%; margin-top: 10px; font-size: 12px;">
+                    <tr><th style="background: #27ae60; color: white; padding: 8px; text-align: left;">Categoria</th><th style="background: #27ae60; color: white; padding: 8px; text-align: left;">Parâmetro</th><th style="background: #27ae60; color: white; padding: 8px; text-align: right;">Valor</th></tr>
+                    <tr style="background: #fff;"><td>Produto</td><td>Nome</td><td style="text-align: right;"><strong>${produto.nome}</strong></td></tr>
+                    <tr style="background: #f9f9f9;"><td>Produto</td><td>Categoria</td><td style="text-align: right;">${produto.categoria}</td></tr>
+                    <tr style="background: #fff;"><td rowspan="3">Demanda</td><td>Média diária</td><td style="text-align: right;"><strong>${demanda.media} kg/dia</strong></td></tr>
+                    <tr style="background: #fff;"><td>Variação</td><td style="text-align: right;">±${demanda.variacao}%</td></tr>
+                    <tr style="background: #fff;"><td>Com crescimento</td><td style="text-align: right;">${demanda.crescimento ? 'Sim' : 'Não'}</td></tr>
+                    <tr style="background: #f9f9f9;"><td rowspan="2">Estoque</td><td>Inicial</td><td style="text-align: right;"><strong>${estoque.inicial} kg</strong></td></tr>
+                    <tr style="background: #f9f9f9;"><td>Mínimo</td><td style="text-align: right;"><strong>${estoque.minimo} kg</strong></td></tr>
+                    <tr style="background: #fff;"><td rowspan="2">Perecibilidade</td><td>Taxa perda/dia</td><td style="text-align: right;"><strong>${perecibilidade.taxa_perda_pct}%</strong></td></tr>
+                    <tr style="background: #fff;"><td>Prazo validade</td><td style="text-align: right;"><strong>${perecibilidade.prazo_validade} dias</strong></td></tr>
+                    <tr style="background: #f9f9f9;"><td rowspan="2">Reposição</td><td>Quantidade pedido</td><td style="text-align: right;"><strong>${reposicao.quantidade} kg</strong></td></tr>
+                    <tr style="background: #f9f9f9;"><td>Lead time</td><td style="text-align: right;"><strong>${reposicao.lead_time} dias</strong></td></tr>
+                </table>
+            </div>
             
-            const output = document.getElementById('gradient-output');
-            let html = `<p>Ponto: Dia ${t0}, Estoque ${s0} kg</p>`;
-            html += `<p>∂f/∂dia = ${formatNumber(dfdt, 6)}</p>`;
-            html += `<p>∂f/∂estoque = ${formatNumber(dfds, 6)}</p>`;
-            html += `<p>||∇f|| = ${formatNumber(gradNorm, 6)}</p>`;
-            output.innerHTML = html;
+            <div class="interpretation" style="margin-top: 15px;">
+                <strong>💡 PRÓXIMOS PASSOS:</strong> Clique nos botões abaixo para executar as simulações específicas:
+                <ul style="margin: 10px 0 0 20px; font-size: 12px;">
+                    <li><strong>Previsão de Demanda:</strong> Veja como a demanda varia em 30 dias com sazonalidade</li>
+                    <li><strong>Análise de Perecibilidade:</strong> Veja quanto do produto se degrada</li>
+                    <li><strong>Simulação de Estoque:</strong> Integração completa de todos os fatores</li>
+                    <li><strong>Otimização EOQ:</strong> Descubra a quantidade ideal de reposição</li>
+                    <li><strong>Dashboard Integrado:</strong> Análise consolidada com recomendações</li>
+                </ul>
+            </div>
+            `;
+            document.getElementById('product-output').innerHTML = html;
         }
 
-    // Calcula e mostra a Hessiana no ponto escolhido
-    function runHessianDemo() {
-            const t = [0, 1, 2, 3, 4];
-            const v = [10, 7, 5, 8, 12];
-            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
-            
-            const t0 = 2.0, s0 = 50;
-            const H = MathEngine.hessian(f, t0, s0);
-            const det = H[0][0] * H[1][1] - H[0][1] * H[1][0];
-            const trace = H[0][0] + H[1][1];
-            
-            const output = document.getElementById('hessian-output');
-            let html = `<p>Ponto: Dia ${t0}, Estoque ${s0} kg</p>`;
-            html += `<p>H[0][0] = ${formatNumber(H[0][0], 6)}</p>`;
-            html += `<p>H[0][1] = ${formatNumber(H[0][1], 6)}</p>`;
-            html += `<p>H[1][0] = ${formatNumber(H[1][0], 6)}</p>`;
-            html += `<p>H[1][1] = ${formatNumber(H[1][1], 6)}</p>`;
-            html += `<p>det(H) = ${formatNumber(det, 6)}</p>`;
-            html += `<p>trace(H) = ${formatNumber(trace, 6)}</p>`;
-            output.innerHTML = html;
+        function runDemandForecast() {
+            const forecast = MathEngine.forecastDemand(formData.demanda, 30);
+            const med = forecast.reduce((a,b) => a+b.demanda, 0) / forecast.length;
+            const tot = forecast.reduce((a,b) => a+b.demanda, 0);
+            const pico = Math.max(...forecast.map(d=>d.demanda));
+            const minimo = Math.min(...forecast.map(d=>d.demanda));
+            let html = `
+            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                📊 Padrão sazonal (senoidal) + crescimento linear ao longo de 30 dias
+            </p>
+            <div class="metrics">
+                <div class="metric"><div class="metric-value">${med.toFixed(1)}</div><div class="metric-label">Média kg/dia</div></div>
+                <div class="metric"><div class="metric-value">${tot.toFixed(0)}</div><div class="metric-label">Total 30 dias</div></div>
+                <div class="metric"><div class="metric-value">${pico.toFixed(1)}</div><div class="metric-label">Pico kg/dia</div></div>
+                <div class="metric"><div class="metric-value">${minimo.toFixed(1)}</div><div class="metric-label">Mínimo kg/dia</div></div>
+            </div>
+            <div class="chart">${drawChart(forecast, 'demanda', 'Previsão de Demanda (30 dias)', 'Demanda (kg/dia)', 380)}</div>
+            <div class="interpretation">
+                <strong>💡 Interpretação:</strong> A demanda varia de ${minimo.toFixed(1)} a ${pico.toFixed(1)} kg/dia. 
+                A variação de ±${formData.demanda.variacao}% com ${formData.demanda.crescimento ? 'crescimento' : 'sem crescimento'} 
+                resultam em padrão sazonal. Recomenda-se manter estoque mínimo de ${(pico * 1.2).toFixed(0)} kg para cobrir picos.
+            </div>
+            `;
+            document.getElementById('demand-output').innerHTML = html;
         }
 
-    // Procura pontos críticos na grade e mostra resultados
-    function runCriticalPointsDemo() {
-            const t = [0, 1, 2, 3, 4];
-            const v = [10, 7, 5, 8, 12];
-            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
-            
-            const crit = MathEngine.findCriticalPointsGrid(f, [0, 4], [40, 100], 30, 30, {
-                eps: 0.1, maxIter: 30, tol: 1e-6, h: 1e-3
+        function runPerecibilityAnalysis() {
+            const perec = MathEngine.simulatePerecibility(formData.perecibilidade, 100, 20);
+            const perda = 100 - (perec[perec.length-1]?.quantidade || 0);
+            const perda_pct = (perda / 100 * 100).toFixed(1);
+            let html = `
+            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                📉 Degradação exponencial: Q(t) = Q(t-1) × (1 - ${formData.perecibilidade.taxa_perda_pct}%/dia)
+            </p>
+            <div class="alert alert-warning">
+                Taxa de perda: <strong>${formData.perecibilidade.taxa_perda_pct}%/dia</strong> | 
+                Prazo de validade: <strong>${formData.perecibilidade.prazo_validade} dias</strong>
+            </div>
+            <div class="metrics">
+                <div class="metric"><div class="metric-value">${perda.toFixed(1)}</div><div class="metric-label">Perda absoluta (kg)</div></div>
+                <div class="metric"><div class="metric-value">${perda_pct}</div><div class="metric-label">Perda relativa (%)</div></div>
+                <div class="metric"><div class="metric-value">${(perec[perec.length-1]?.quantidade || 0).toFixed(1)}</div><div class="metric-label">Qtd. restante (kg)</div></div>
+                <div class="metric"><div class="metric-value">${(perec[perec.length-1]?.disponivel_pct || 0).toFixed(1)}</div><div class="metric-label">Disponível (%)</div></div>
+            </div>
+            <div class="chart">${drawChart(perec, 'quantidade', 'Análise de Perecibilidade (Degradação)', 'Quantidade disponível (kg)', 380)}</div>
+            <div class="interpretation">
+                <strong>💡 Interpretação:</strong> A cada dia, ${formData.perecibilidade.taxa_perda_pct}% do produto se degrada.
+                Em ${formData.perecibilidade.prazo_validade} dias, apenas ${(perec[perec.length-1]?.quantidade || 0).toFixed(1)} kg permanecem viáveis.
+                Isso representa uma perda de ${perda_pct}%. Recomenda-se rotação de estoque (FIFO).
+            </div>
+            `;
+            document.getElementById('perecibility-output').innerHTML = html;
+        }
+
+        function runCompleteSimulation() {
+            const sim = MathEngine.completeStockSimulation({
+                estoque_inicial: formData.estoque.inicial,
+                demanda_media: formData.demanda.media,
+                demanda_variacao: formData.demanda.variacao,
+                taxa_perda: formData.perecibilidade.taxa_perda_pct,
+                prazo_validade: formData.perecibilidade.prazo_validade,
+                qtd_reposicao: formData.reposicao.quantidade,
+                lead_time: formData.reposicao.lead_time,
+                estoque_minimo: formData.estoque.minimo,
+                dias: 30
             });
             
-            const output = document.getElementById('critical-output');
-            if (crit.length === 0) {
-                output.innerHTML = '<p>Nenhum ponto crítico encontrado</p>';
-                return;
-            }
+            const ruptura = sim.filter(s => s.ruptura).length;
+            const perda_total = sim.reduce((a,b) => a+b.perda, 0);
+            const dem_total = sim.reduce((a,b) => a+b.demanda, 0);
+            const reposicoes = sim.filter(s=>s.reposicao_disparada).length;
+            const estoque_minimo = Math.min(...sim.map(s => s.estoque));
+            const estoque_maximo = Math.max(...sim.map(s => s.estoque));
             
-            let html = `<p>Encontrados ${crit.length} pontos críticos:</p>`;
-            html += '<table><tr><th>Dia</th><th>Estoque</th><th>Tipo</th></tr>';
-            for (const c of crit) {
-                html += `<tr><td>${formatNumber(c.t, 2)}</td><td>${formatNumber(c.s, 1)}</td><td>${c.type}</td></tr>`;
-            }
-            html += '</table>';
-            output.innerHTML = html;
+            let html = `
+            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                🔄 Integração de: demanda sazonal + perecibilidade (${formData.perecibilidade.taxa_perda_pct}%/dia) + reposição automática (${formData.reposicao.quantidade}kg a cada ${formData.reposicao.lead_time} dias)
+            </p>
+            ${ruptura > 0 ? `<div class="alert alert-danger">⚠️ <strong>RISCO DETECTADO:</strong> ${ruptura} dia(s) com ruptura (estoque = 0)</div>` : '<div class="alert alert-success">✅ <strong>SEGURANÇA OK:</strong> Sem ruptura durante 30 dias</div>'}
+            <div class="metrics">
+                <div class="metric"><div class="metric-value">${dem_total.toFixed(0)}</div><div class="metric-label">Demanda total (kg)</div></div>
+                <div class="metric"><div class="metric-value">${perda_total.toFixed(0)}</div><div class="metric-label">Perda total (kg)</div></div>
+                <div class="metric"><div class="metric-value">${reposicoes}</div><div class="metric-label">Reposições feitas</div></div>
+                <div class="metric"><div class="metric-value">${estoque_minimo.toFixed(0)} - ${estoque_maximo.toFixed(0)}</div><div class="metric-label">Faixa estoque (kg)</div></div>
+            </div>
+            <div class="chart">${drawChart(sim, 'estoque', 'Evolução do Estoque (30 dias)', 'Estoque (kg)', 380)}</div>
+            <div class="interpretation">
+                <strong>💡 Análise:</strong> 
+                O estoque varia entre ${estoque_minimo.toFixed(0)}kg e ${estoque_maximo.toFixed(0)}kg.
+                ${ruptura > 0 ? `⚠️ <strong>Há risco!</strong> Aumentar estoque inicial para ${(formData.estoque.inicial * 1.3).toFixed(0)}kg ou reduzir lead time.` : `✅ Estratégia é segura com estoque inicial de ${formData.estoque.inicial}kg.`}
+                Perda total: ${perda_total.toFixed(0)}kg em 30 dias.
+            </div>
+            `;
+            document.getElementById('simulation-output').innerHTML = html;
         }
 
-    // Executa simulação simples de estoque e mostra tabela
-    function runSimulationDemo() {
-            const t = [0, 1, 2, 3, 4];
-            const v = [10, 7, 5, 8, 12];
-            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
-            
-            const sim = MathEngine.simulateStock({
-                S0: 100, t0: 0, tEnd: 10, dt: 0.5,
-                demandFunc: (t, S) => f(t, S),
-                periodic: { interval: 3, qty: 50, start: 0 }
+        function runOptimizationAnalysis() {
+            const opt = MathEngine.optimizeReplenishment({
+                demanda_media: formData.demanda.media,
+                custo_estoque: 0.5,
+                custo_reposicao: 50,
+                lead_time: formData.reposicao.lead_time,
+                taxa_perda: formData.perecibilidade.taxa_perda_pct
             });
             
-            const output = document.getElementById('simulation-output');
-            let html = `<p>Simulação: ${sim.length} passos</p>`;
-            html += '<table><tr><th>Dia</th><th>Estoque</th><th>Vendas</th><th>Reposição</th></tr>';
+            const atual_custo = (50 / (formData.reposicao.quantidade / formData.demanda.media)) + (formData.reposicao.quantidade / 2) * 0.5;
+            const econ = (atual_custo - opt.custo_total_diario) / atual_custo * 100;
+            const econ_mensal = (atual_custo - opt.custo_total_diario) * 30;
             
-            for (let i = 0; i < Math.min(20, sim.length); i++) {
-                const s = sim[i];
-                html += `<tr><td>${formatNumber(s.t, 1)}</td><td>${formatNumber(s.S, 1)}</td><td>${formatNumber(s.demand, 1)}</td><td>${formatNumber(s.replenishment, 0)}</td></tr>`;
-            }
-            if (sim.length > 20) html += `<tr><td colspan="4">... ${sim.length - 20} linhas omitidas</td></tr>`;
-            html += '</table>';
-            
-            const ruptura = sim.find(x => x.rupture);
-            if (ruptura) html += `<p><strong>Ruptura detectada em dia ${formatNumber(ruptura.t, 1)}</strong></p>`;
-            output.innerHTML = html;
+            let html = `
+            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                🎯 Fórmula EOQ: Q* = √(2×D×S / (H×(1+taxa))) onde D=demanda, S=custo reposição, H=custo manutenção
+            </p>
+            <div class="alert alert-success">
+                ✅ <strong>EOQ Calculado:</strong> ${opt.quantidade_otima} kg a cada ${opt.ciclo_reposicao_dias} dias
+            </div>
+            <div class="metrics">
+                <div class="metric"><div class="metric-value">${opt.quantidade_otima}</div><div class="metric-label">Qtd. Ótima (kg)</div></div>
+                <div class="metric"><div class="metric-value">${opt.ciclo_reposicao_dias}</div><div class="metric-label">Ciclo (dias)</div></div>
+                <div class="metric"><div class="metric-value">${econ.toFixed(1)}%</div><div class="metric-label">Economia</div></div>
+                <div class="metric"><div class="metric-value">R$ ${econ_mensal.toFixed(2)}</div><div class="metric-label">Ganho/mês</div></div>
+            </div>
+            <table>
+                <tr>
+                    <th>Métrica</th>
+                    <th>Estratégia Atual</th>
+                    <th>Estratégia Ótima (EOQ)</th>
+                    <th>Diferença</th>
+                </tr>
+                <tr>
+                    <td><strong>Quantidade/pedido</strong></td>
+                    <td>${formData.reposicao.quantidade} kg</td>
+                    <td>${opt.quantidade_otima} kg</td>
+                    <td>${(opt.quantidade_otima - formData.reposicao.quantidade > 0 ? '+' : '')} ${(opt.quantidade_otima - formData.reposicao.quantidade).toFixed(0)} kg</td>
+                </tr>
+                <tr>
+                    <td><strong>Ciclo entre reposições</strong></td>
+                    <td>${(formData.reposicao.quantidade/formData.demanda.media).toFixed(1)} dias</td>
+                    <td>${opt.ciclo_reposicao_dias} dias</td>
+                    <td>${(opt.ciclo_reposicao_dias - (formData.reposicao.quantidade/formData.demanda.media) > 0 ? '+' : '')} ${(opt.ciclo_reposicao_dias - (formData.reposicao.quantidade/formData.demanda.media)).toFixed(1)} dias</td>
+                </tr>
+                <tr>
+                    <td><strong>Custo diário</strong></td>
+                    <td>R$ ${atual_custo.toFixed(2)}</td>
+                    <td>R$ ${opt.custo_total_diario.toFixed(2)}</td>
+                    <td>R$ ${(opt.custo_total_diario - atual_custo).toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Estoque médio</strong></td>
+                    <td>${(formData.reposicao.quantidade/2).toFixed(1)} kg</td>
+                    <td>${opt.estoque_medio.toFixed(1)} kg</td>
+                    <td>${(opt.estoque_medio - formData.reposicao.quantidade/2).toFixed(1)} kg</td>
+                </tr>
+            </table>
+            <div class="interpretation">
+                <strong>💡 Recomendação:</strong> 
+                Mudar para ${opt.quantidade_otima} kg a cada ${opt.ciclo_reposicao_dias} dias gera economia de 
+                <strong>R$ ${econ_mensal.toFixed(2)}/mês</strong> (${econ.toFixed(1)}% de redução). 
+                ${opt.quantidade_otima < formData.reposicao.quantidade ? 'Reduz' : 'Aumenta'} o estoque médio em ${Math.abs(opt.estoque_medio - formData.reposicao.quantidade/2).toFixed(1)} kg.
+            </div>
+            `;
+            document.getElementById('optimization-output').innerHTML = html;
         }
 
-    // Amostra a superfície em uma grade e mostra alguns pontos
-    function runGridSamplingDemo() {
-            const t = [0, 1, 2, 3, 4];
-            const v = [10, 7, 5, 8, 12];
-            const f = MathEngine.makeDemandFunction(v, s => 1 + 0.01 * s);
+        function runFullDashboard() {
+            const sim = MathEngine.completeStockSimulation({
+                estoque_inicial: formData.estoque.inicial,
+                demanda_media: formData.demanda.media,
+                demanda_variacao: formData.demanda.variacao,
+                taxa_perda: formData.perecibilidade.taxa_perda_pct,
+                prazo_validade: formData.perecibilidade.prazo_validade,
+                qtd_reposicao: formData.reposicao.quantidade,
+                lead_time: formData.reposicao.lead_time,
+                estoque_minimo: formData.estoque.minimo,
+                dias: 30
+            });
             
-            const grid = MathEngine.sampleGrid(f, [0, 4], [40, 100], 10, 10);
+            const opt = MathEngine.optimizeReplenishment({
+                demanda_media: formData.demanda.media,
+                custo_estoque: 0.5,
+                custo_reposicao: 50,
+                lead_time: formData.reposicao.lead_time,
+                taxa_perda: formData.perecibilidade.taxa_perda_pct
+            });
             
-            const output = document.getElementById('grid-output');
-            let html = `<p>Grade ${grid.Ts.length}x${grid.Ss.length} = ${grid.Ts.length * grid.Ss.length} pontos</p>`;
-            html += '<table><tr><th>Dia</th><th>Estoque</th><th>Demanda</th><th>dD/dia</th><th>dD/estoque</th></tr>';
+            const dem = sim.reduce((a,b) => a+b.demanda, 0);
+            const perda = sim.reduce((a,b) => a+b.perda, 0);
+            const ruptura = sim.filter(s => s.ruptura).length;
+            const taxa_ruptura = (ruptura/30*100).toFixed(1);
+            const taxa_perda_pct = (perda/dem*100).toFixed(1);
+            const eficiencia = (100 - parseFloat(taxa_perda_pct) - parseFloat(taxa_ruptura)).toFixed(1);
             
-            const step = Math.ceil((grid.Ts.length * grid.Ss.length) / 12);
-            for (let idx = 0; idx < grid.Ts.length * grid.Ss.length; idx += step) {
-                const i = Math.floor(idx / grid.Ss.length);
-                const j = idx % grid.Ss.length;
-                if (i < grid.Ts.length && j < grid.Ss.length) {
-                    html += `<tr><td>${formatNumber(grid.Ts[i], 1)}</td><td>${formatNumber(grid.Ss[j], 0)}</td><td>${formatNumber(grid.Z[i][j], 2)}</td><td>${formatNumber(grid.Gt[i][j], 4)}</td><td>${formatNumber(grid.Gs[i][j], 6)}</td></tr>`;
-                }
-            }
-            html += '</table>';
-            output.innerHTML = html;
+            let html = `
+            <div style="background: linear-gradient(135deg, #27ae60, #229954); color: white; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                <h3 style="margin: 0 0 5px 0; font-size: 22px;">${formData.produto.nome}</h3>
+                <p style="margin: 0; font-size: 13px; opacity: 0.9;">Categoria: <strong>${formData.produto.categoria}</strong> | Simulação: 30 dias</p>
+                <p style="margin: 8px 0 0 0; font-size: 12px; opacity: 0.8;">Demanda sazonal com perecibilidade e reposição automática</p>
+            </div>
+            
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-value">${dem.toFixed(0)}</div>
+                    <div class="metric-label">Demanda Total (kg)</div>
+                    <div style="font-size: 11px; color: #999; margin-top: 5px;">30 dias × ~${(dem/30).toFixed(1)} kg/dia</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">${taxa_perda_pct}%</div>
+                    <div class="metric-label">Taxa de Perda</div>
+                    <div style="font-size: 11px; color: #999; margin-top: 5px;">${perda.toFixed(0)} kg perdidos</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" style="color: ${ruptura > 0 ? '#dc3545' : '#28a745'};">${taxa_ruptura}%</div>
+                    <div class="metric-label">Taxa de Ruptura</div>
+                    <div style="font-size: 11px; color: #999; margin-top: 5px;">${ruptura} dia(s) fora de estoque</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">${eficiencia}%</div>
+                    <div class="metric-label">Eficiência Geral</div>
+                    <div style="font-size: 11px; color: #999; margin-top: 5px;">Sem perda nem ruptura</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0;">
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; border-left: 3px solid #27ae60;">
+                    <strong style="color: #27ae60; font-size: 13px;">📊 ESTRATÉGIA ATUAL</strong>
+                    <table style="width: 100%; margin-top: 10px; font-size: 12px;">
+                        <tr><td>Qtd./pedido:</td><td style="text-align: right;"><strong>${formData.reposicao.quantidade} kg</strong></td></tr>
+                        <tr><td>Ciclo:</td><td style="text-align: right;"><strong>${(formData.reposicao.quantidade/formData.demanda.media).toFixed(1)} dias</strong></td></tr>
+                        <tr><td>Estoque médio:</td><td style="text-align: right;"><strong>${(formData.reposicao.quantidade/2).toFixed(0)} kg</strong></td></tr>
+                        <tr><td>Lead time:</td><td style="text-align: right;"><strong>${formData.reposicao.lead_time} dias</strong></td></tr>
+                    </table>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 4px; border-left: 3px solid #27ae60;">
+                    <strong style="color: #27ae60; font-size: 13px;">🎯 ESTRATÉGIA ÓTIMA (EOQ)</strong>
+                    <table style="width: 100%; margin-top: 10px; font-size: 12px;">
+                        <tr><td>Qtd./pedido:</td><td style="text-align: right;"><strong>${opt.quantidade_otima} kg</strong></td></tr>
+                        <tr><td>Ciclo:</td><td style="text-align: right;"><strong>${opt.ciclo_reposicao_dias} dias</strong></td></tr>
+                        <tr><td>Estoque médio:</td><td style="text-align: right;"><strong>${opt.estoque_medio.toFixed(0)} kg</strong></td></tr>
+                        <tr><td>Custo/dia:</td><td style="text-align: right;"><strong>R$ ${opt.custo_total_diario.toFixed(2)}</strong></td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="chart">${drawChart(sim, 'estoque', 'Evolução do Estoque durante 30 dias', 'Estoque (kg)', 400)}</div>
+            
+            <div class="interpretation">
+                <strong>📌 RESUMO EXECUTIVO:</strong><br>
+                <strong>Demanda:</strong> ${dem.toFixed(0)} kg em 30 dias (média ${(dem/30).toFixed(1)} kg/dia)<br>
+                <strong>Perdas:</strong> ${perda.toFixed(0)} kg (${taxa_perda_pct}%) por perecibilidade<br>
+                <strong>Ruptura:</strong> ${ruptura > 0 ? `⚠️ ${ruptura} dia(s) (${taxa_ruptura}%) - AUMENTAR ESTOQUE` : `✅ Nenhum dia sem estoque (${taxa_ruptura}%)`}<br>
+                <strong>Eficiência:</strong> ${eficiencia}%<br><br>
+                <strong>💡 RECOMENDAÇÃO:</strong> 
+                Implementar estratégia EOQ de ${opt.quantidade_otima} kg a cada ${opt.ciclo_reposicao_dias} dias para economizar 
+                R$ ${((1 - opt.custo_total_diario/((50 / (formData.reposicao.quantidade / formData.demanda.media)) + (formData.reposicao.quantidade / 2) * 0.5)) * 100).toFixed(1)}% nos custos.
+            </div>
+            `;
+            document.getElementById('dashboard-output').innerHTML = html;
         }
-
-    // Testa o parser CSV com exemplo embutido
-    function runCSVParserDemo() {
-            const csvText = `dia,vendas_kg,estoque_kg
-0,10,95
-1,8,87
-2,7,80
-3,9,71
-4,12,59`;
-            
-            const parsed = MathEngine.parseCSV(csvText);
-            
-            const output = document.getElementById('csv-output');
-            let html = `<p>Linhas parseadas: ${parsed.length}</p>`;
-            html += '<table><tr><th>Dia</th><th>Vendas (kg)</th><th>Estoque (kg)</th></tr>';
-            for (const row of parsed) {
-                html += `<tr><td>${row.dia}</td><td>${row.vendas_kg}</td><td>${row.estoque_kg}</td></tr>`;
-            }
-            html += '</table>';
-            output.innerHTML = html;
-        }
-
-        // Evento simples para indicar que o demo carregou
-        window.addEventListener('load', () => {
-            console.log('MathEngine Demo loaded');
-        });
     </script>
 </body>
 </html>
